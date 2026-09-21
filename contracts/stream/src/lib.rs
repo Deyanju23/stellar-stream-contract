@@ -54,6 +54,7 @@ impl StreamContract {
 
     /// Create a new payment stream. The sender's tokens are transferred into
     /// the contract immediately. Returns the new stream ID.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_stream(
         env: Env,
         sender: Address,
@@ -87,7 +88,7 @@ impl StreamContract {
 
         // Transfer tokens from sender to contract
         let token_client = token::Client::new(&env, &token_addr);
-        token_client.transfer(&sender, &env.current_contract_address(), &deposit_amount);
+        token_client.transfer(&sender, env.current_contract_address(), &deposit_amount);
 
         let stream_id = storage::get_next_stream_id(&env);
         let next_id = stream_id
