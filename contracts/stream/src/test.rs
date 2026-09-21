@@ -757,7 +757,8 @@ fn test_exact_arithmetic_no_precision_loss() {
         let r_bal = client.balance_of(&stream_id, &recipient);
         let s_bal = client.balance_of(&stream_id, &sender);
         assert_eq!(
-            r_bal + s_bal, deposit,
+            r_bal + s_bal,
+            deposit,
             "Precision loss at offset {offset}: recipient={r_bal}, sender={s_bal}"
         );
     }
