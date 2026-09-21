@@ -1,5 +1,35 @@
-use soroban_sdk::{symbol_short, Address, Env};
+use soroban_sdk::{contractevent, Address, Env};
 
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamCreated {
+    pub sender: Address,
+    pub recipient: Address,
+    pub stream_id: u64,
+    pub token: Address,
+    pub deposit_amount: i128,
+    pub start_time: u64,
+    pub stop_time: u64,
+}
+
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TokensWithdrawn {
+    pub recipient: Address,
+    pub stream_id: u64,
+    pub amount: i128,
+    pub remaining_balance: i128,
+}
+
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamCanceled {
+    pub stream_id: u64,
+    pub sender_refund: i128,
+    pub recipient_payout: i128,
+}
+
+#[allow(clippy::too_many_arguments)]
 pub fn emit_stream_created(
     env: &Env,
     sender: &Address,
@@ -10,10 +40,15 @@ pub fn emit_stream_created(
     start_time: u64,
     stop_time: u64,
 ) {
-    env.events().publish(
-        (symbol_short!("created"), sender.clone(), recipient.clone()),
-        (stream_id, token.clone(), deposit_amount, start_time, stop_time),
-    );
+    env.events().publish_event(&StreamCreated {
+        sender: sender.clone(),
+        recipient: recipient.clone(),
+        stream_id,
+        token: token.clone(),
+        deposit_amount,
+        start_time,
+        stop_time,
+    });
 }
 
 pub fn emit_tokens_withdrawn(
@@ -23,10 +58,12 @@ pub fn emit_tokens_withdrawn(
     amount: i128,
     remaining_balance: i128,
 ) {
-    env.events().publish(
-        (symbol_short!("withdraw"), recipient.clone()),
-        (stream_id, amount, remaining_balance),
-    );
+    env.events().publish_event(&TokensWithdrawn {
+        recipient: recipient.clone(),
+        stream_id,
+        amount,
+        remaining_balance,
+    });
 }
 
 pub fn emit_stream_canceled(
@@ -35,8 +72,9 @@ pub fn emit_stream_canceled(
     sender_refund: i128,
     recipient_payout: i128,
 ) {
-    env.events().publish(
-        (symbol_short!("canceled"), stream_id),
-        (sender_refund, recipient_payout),
-    );
+    env.events().publish_event(&StreamCanceled {
+        stream_id,
+        sender_refund,
+        recipient_payout,
+    });
 }
