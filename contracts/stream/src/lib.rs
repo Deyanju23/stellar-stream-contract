@@ -28,7 +28,8 @@ fn compute_earned(stream: &Stream, current_time: u64) -> Result<i128, StreamErro
     let elapsed = current_time
         .checked_sub(stream.start_time)
         .ok_or(StreamError::MathOverflow)?;
-    let duration = stream.stop_time
+    let duration = stream
+        .stop_time
         .checked_sub(stream.start_time)
         .ok_or(StreamError::MathOverflow)?;
 
@@ -91,9 +92,7 @@ impl StreamContract {
         token_client.transfer(&sender, env.current_contract_address(), &deposit_amount);
 
         let stream_id = storage::get_next_stream_id(&env);
-        let next_id = stream_id
-            .checked_add(1)
-            .ok_or(StreamError::MathOverflow)?;
+        let next_id = stream_id.checked_add(1).ok_or(StreamError::MathOverflow)?;
         storage::set_next_stream_id(&env, next_id);
 
         let stream = Stream {
@@ -197,11 +196,7 @@ impl StreamContract {
         storage::set_stream(&env, &stream);
 
         let token_client = token::Client::new(&env, &stream.token);
-        token_client.transfer(
-            &env.current_contract_address(),
-            &stream.recipient,
-            &amount,
-        );
+        token_client.transfer(&env.current_contract_address(), &stream.recipient, &amount);
 
         events::emit_tokens_withdrawn(
             &env,
